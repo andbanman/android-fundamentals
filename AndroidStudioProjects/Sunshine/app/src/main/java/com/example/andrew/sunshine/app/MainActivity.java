@@ -92,6 +92,8 @@ public class MainActivity extends ActionBarActivity {
 
             //This comment is a test for GitHub pushing!!!
 
+            //This comment is for testing out a new branch
+
             return rootView;
         }
     }
