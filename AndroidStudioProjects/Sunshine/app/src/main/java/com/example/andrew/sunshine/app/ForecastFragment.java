@@ -62,6 +62,7 @@ public class ForecastFragment extends Fragment {
         ArrayList<String> weekForecast = new ArrayList<String>(
                 Arrays.asList(forecastArray));
 
+        //Extra code to auto refresh on startup.
         FetchWeatherTask weatherTask = new FetchWeatherTask();
         weatherTask.execute("55105");
 
@@ -169,7 +170,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                
+
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
