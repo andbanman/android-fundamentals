@@ -34,6 +34,8 @@ import java.util.Date;
  */
 public class ForecastFragment extends Fragment {
 
+    private ArrayAdapter<String> mForecastAdaptor;
+
     public ForecastFragment() {
     }
 
@@ -59,7 +61,11 @@ public class ForecastFragment extends Fragment {
         };
         ArrayList<String> weekForecast = new ArrayList<String>(
                 Arrays.asList(forecastArray));
-        ArrayAdapter<String> mForecastAdaptor = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
+
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        weatherTask.execute("55105");
+
+        mForecastAdaptor = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
         ListView listView = (ListView) rootView.findViewById(R.id.listView_forecast);
         listView.setAdapter(mForecastAdaptor);
         return rootView;
@@ -95,9 +101,9 @@ public class ForecastFragment extends Fragment {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
-
         @Override
         protected String[] doInBackground(String... params){
+
 
             if (params.length == 0){
                 return null;
@@ -135,7 +141,6 @@ public class ForecastFragment extends Fragment {
                         .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
                         .build();
                 URL url = new URL(builtUri.toString());
-                Log.v(LOG_TAG, "Built Uri " + builtUri.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -164,7 +169,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
+                
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -193,9 +198,20 @@ public class ForecastFragment extends Fragment {
             return null;
         }
 
+        @Override
+        protected void onPostExecute(String[] result) {
+            super.onPostExecute(result);
+            if (result != null){
+                mForecastAdaptor.clear();
+                for (String dayForecastStr : result){
+                    mForecastAdaptor.add(dayForecastStr);
+                }
+            }
+        }
+
         /* The date/time conversion code is going to be moved outside the asynctask later,
-        * so for convenience we're breaking it out into its own method now.
-        */
+                * so for convenience we're breaking it out into its own method now.
+                */
         private String getReadableDateString(long time){
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
